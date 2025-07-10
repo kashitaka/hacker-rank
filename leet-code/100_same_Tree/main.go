@@ -1,8 +1,8 @@
 package main
 
-import treenode "hacker-rank/leet-code/tree_node"
+import leetcode "hacker-rank/leet-code"
 
-func isSameTree(p *treenode.TreeNode, q *treenode.TreeNode) bool {
+func isSameTree(p *leetcode.TreeNode, q *leetcode.TreeNode) bool {
 	if p == nil && q == nil {
 		return true
 	}
