@@ -19,7 +19,7 @@ func combinationSum(candidates []int, target int) [][]int {
 		cur = append(cur, candidates[idx])
 		dfs(idx, cur, total+candidates[idx])
 
-		// no choose idx val
+		// backtrack: 1個前に戻って次の数字を試す
 		cur = cur[:len(cur)-1]
 		dfs(idx+1, cur, total)
 	}
