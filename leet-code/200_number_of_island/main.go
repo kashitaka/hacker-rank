@@ -1,47 +1,36 @@
 package _00_number_of_island
 
 func numIslands(grid [][]byte) int {
-	m := len(grid)
-	n := len(grid[0])
-	checked := make([][]bool, m)
-	cnt := 0
-	for i := 0; i < m; i++ {
-		row := make([]bool, n)
-		checked[i] = row
+	rMax := len(grid) - 1
+	cMax := len(grid[0]) - 1
+	res := 0
+	seen := make([][]bool, len(grid))
+	for i, _ := range grid {
+		seen[i] = make([]bool, len(grid[0]))
 	}
-	for i, row := range grid {
-		for j, cell := range row {
-			if checked[i][j] == true {
-				continue
+
+	var dfs func(r, c int)
+	dfs = func(r, c int) {
+		if r < 0 || c < 0 || r > rMax || c > cMax || seen[r][c] {
+			return
+		}
+		seen[r][c] = true
+		if grid[r][c] == '0' {
+			return
+		}
+		dfs(r+1, c)
+		dfs(r-1, c)
+		dfs(r, c+1)
+		dfs(r, c-1)
+	}
+
+	for r, row := range grid {
+		for c, _ := range row {
+			if grid[r][c] == '1' && !seen[r][c] {
+				res++
 			}
-			if cell == 49 && !checked[i][j] {
-				cnt++
-				dfs(grid, i, j, checked)
-			}
-			checked[i][j] = true
+			dfs(r, c)
 		}
 	}
-	return cnt
-}
-
-func dfs(grid [][]byte, i, j int, checked [][]bool)  {
-	if checked[i][j] {
-		return
-	}
-	checked[i][j] = true
-	if grid[i][j] == 48 {
-		return
-	}
-	if i != 0 {
-		dfs(grid, i-1, j, checked)
-	}
-	if i != len(grid)-1 {
-		dfs(grid, i+1, j, checked)
-	}
-	if j != 0 {
-		dfs(grid, i, j-1, checked)
-	}
-	if j != len(grid[0])-1 {
-		dfs(grid, i, j+1, checked)
-	}
+	return res
 }
