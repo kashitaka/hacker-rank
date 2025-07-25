@@ -7,9 +7,7 @@ func combinationSum(candidates []int, target int) [][]int {
 	var dfs func(idx int, cur []int, total int)
 	dfs = func(idx int, cur []int, total int) {
 		if total == target {
-			curCopy := make([]int, len(cur))
-			copy(curCopy, cur)
-			res = append(res, curCopy)
+			res = append(res, copy(cur))
 			return
 		}
 		if total > target || idx > len(candidates)-1 {
@@ -25,4 +23,38 @@ func combinationSum(candidates []int, target int) [][]int {
 	}
 	dfs(0, []int{}, 0)
 	return res
+}
+
+func combinationSum2(candidates []int, target int) [][]int {
+	res := [][]int{}
+	path := []int{}
+
+	var dfs func(int, int)
+	dfs = func(i int, t int) {
+		for i < len(candidates) {
+			val := candidates[i]
+			path = append(path, val)
+			if t == val {
+				// found
+				res = append(res, copy(path))
+			}
+			if t > val {
+				dfs(i, t-val)
+			}
+			// backtracking
+			path = path[:len(path)-1]
+			i++
+		}
+	}
+	dfs(0, target)
+
+	return res
+}
+
+func copy(orig []int) []int {
+	cp := make([]int, len(orig))
+	for i, v := range orig {
+		cp[i] = v
+	}
+	return cp
 }
