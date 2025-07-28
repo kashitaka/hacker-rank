@@ -52,29 +52,28 @@ func cloneGraph(node *Node) *Node {
 
 // NeetCode 参考に。
 // 頭いい
-func cloneGraphImprove(node *Node) *Node {
+func cloneGraphImproved(node *Node) *Node {
 	if node == nil {
 		return nil
 	}
-	oldNew := make(map[*Node]*Node)
+	nodeHash := make(map[int]*Node) // map of originalVal vs Node. it works because vals are unique.
 
-	var dfs func(node *Node) *Node
-	dfs = func(node *Node) *Node {
-		cn := oldNew[node]
-		if cn != nil {
-			return cn
+	var dfs func(*Node) *Node
+	dfs = func(orig *Node) *Node {
+		if node, ok := nodeHash[orig.Val]; ok {
+			return node
 		}
-		cn = &Node{
-			Val: node.Val,
+
+		newNode := &Node{
+			Val: orig.Val,
 		}
-		oldNew[node] = cn
-		copyNeigbors := make([]*Node, len(node.Neighbors))
-		for idx, neighbor := range node.Neighbors {
-			copyNeigbors[idx] = dfs(neighbor)
+		nodeHash[newNode.Val] = newNode
+		neighbors := make([]*Node, len(orig.Neighbors))
+		for i, v := range orig.Neighbors {
+			neighbors[i] = dfs(v)
 		}
-		cn.Neighbors = copyNeigbors
-		return cn
+		newNode.Neighbors = neighbors
+		return newNode
 	}
-
 	return dfs(node)
 }
