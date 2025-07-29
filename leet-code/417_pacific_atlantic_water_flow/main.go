@@ -2,44 +2,55 @@ package _17_pacific_atlantic_water_flow
 
 // Neet Code の解説動画見て、とりあえず自分で書いてみる。
 // これは難しいねーーー
+// 追記: pacとatl のキーを []int にせず [][] にすると高速になる。[]int だとpointerの検索になるから？
 
 func pacificAtlantic(heights [][]int) [][]int {
-	ROWS, COLS := len(heights), len(heights[0])
-	pac, atl := make(map[[2]int]bool), make(map[[2]int]bool)
+	ROW := len(heights)
+	COL := len(heights[0])
 
-	var dfs func(row int, col int, visited map[[2]int]bool, prevHeight int)
-	dfs = func(row int, col int, visited map[[2]int]bool, prevHeight int) {
-		if row < 0 || col < 0 || row == ROWS || col == COLS ||
-			visited[[2]int{row, col}] || // already visited
-			heights[row][col] < prevHeight { // can't go lower place
+	pac := make([][]bool, ROW)
+	atl := make([][]bool, ROW)
+	for i, _ := range pac {
+		pac[i] = make([]bool, COL)
+		atl[i] = make([]bool, COL)
+	}
+
+	var dfs func(row int, col int, prevLevel int, visited [][]bool)
+	dfs = func(row int, col int, prevLevel int, visited [][]bool) {
+		if row < 0 || row >= ROW || col < 0 || col >= COL ||
+			heights[row][col] < prevLevel || visited[row][col] {
 			return
 		}
-		// this grid is reachable from the ocean
-		visited[[2]int{row, col}] = true
-		// go next
-		dfs(row-1, col, visited, heights[row][col])
-		dfs(row+1, col, visited, heights[row][col])
-		dfs(row, col-1, visited, heights[row][col])
-		dfs(row, col+1, visited, heights[row][col])
+		// this sell can be reached from the ocean
+		visited[row][col] = true
+		curLevel := heights[row][col]
+		// keep scaning for adjuscent cells
+		dfs(row-1, col, curLevel, visited)
+		dfs(row+1, col, curLevel, visited)
+		dfs(row, col-1, curLevel, visited)
+		dfs(row, col+1, curLevel, visited)
 	}
 
-	for c := 0; c < COLS; c++ {
-		dfs(0, c, pac, heights[0][c])           // the most top row -> to the pac
-		dfs(ROWS-1, c, atl, heights[ROWS-1][c]) // the most bottom row -> to the atl
+	// O(2 * n * m )
+	for i := 0; i < COL; i++ {
+		dfs(0, i, 0, pac)
+		dfs(ROW-1, i, 0, atl)
 	}
-
-	for r := 0; r < ROWS; r++ {
-		dfs(r, 0, pac, heights[r][0])           // the most left col -> to the pac
-		dfs(r, COLS-1, atl, heights[r][COLS-1]) // the most bottom row -> to the atl
+	// O(2 * n * m )
+	for i := 0; i < ROW; i++ {
+		dfs(i, 0, 0, pac)
+		dfs(i, COL-1, 0, atl)
 	}
-
 	res := [][]int{}
-	for row, v := range heights {
-		for col, _ := range v {
-			if pac[[2]int{row, col}] && atl[[2]int{row, col}] {
-				res = append(res, []int{row, col})
+	// O(n * m )
+	for r, row := range pac {
+		for c, cell := range row {
+			if cell && atl[r][c] {
+				res = append(res, []int{r, c})
 			}
 		}
 	}
+	// Time: O( n * m )
+	// Space: O(n * m )
 	return res
 }
