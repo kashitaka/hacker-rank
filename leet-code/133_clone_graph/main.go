@@ -65,6 +65,7 @@ func cloneGraphImproved(node *Node) *Node {
 		}
 
 		newNode := &Node{
+
 			Val: orig.Val,
 		}
 		nodeHash[newNode.Val] = newNode
