@@ -19,3 +19,19 @@ func eraseOverlapIntervals(intervals [][]int) int {
 	}
 	return remove
 }
+
+func eraseOverlapIntervalsShrinkMerge(intervals [][]int) int {
+	sort.Slice(intervals, func(i, j int) bool {
+		return intervals[i][1] < intervals[j][1]
+	})
+	currentEndTime := math.MinInt
+	remove := 0
+	for _, v := range intervals {
+		if v[0] < currentEndTime {
+			remove++
+			continue
+		}
+		currentEndTime = v[1]
+	}
+	return remove
+}
