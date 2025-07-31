@@ -1,0 +1,10 @@
+package _71_sum_of_two_integers
+
+func getSum(a int, b int) int {
+	for b != 0 {
+		carry := (a & b) << 1
+		a = a ^ b
+		b = carry
+	}
+	return a
+}
