@@ -53,3 +53,40 @@ func setZeroes(matrix [][]int) {
 		}
 	}
 }
+
+// TIME: O(n * m)
+// SPACE: O(n + m)
+func setZeroesOptimized(matrix [][]int) {
+	ROW := len(matrix)
+	COL := len(matrix[0])
+
+	zeroRows := make([]bool, ROW)
+	zeroCols := make([]bool, COL)
+
+	for row, _ := range matrix {
+		for col, _ := range matrix[0] {
+			if matrix[row][col] == 0 {
+				zeroRows[row] = true
+				zeroCols[col] = true
+			}
+		}
+	}
+
+	for row, isZero := range zeroRows {
+		if !isZero {
+			continue
+		}
+		for i := 0; i < COL; i++ {
+			matrix[row][i] = 0
+		}
+	}
+
+	for col, isZero := range zeroCols {
+		if !isZero {
+			continue
+		}
+		for i := 0; i < ROW; i++ {
+			matrix[i][col] = 0
+		}
+	}
+}
