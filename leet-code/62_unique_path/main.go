@@ -1,25 +1,24 @@
 package _2_unique_path
 
+// TimeComplexity: O(n * m)
+// SpaceComplexity: O(n * m)
 func uniquePaths(m int, n int) int {
-	routeCache := make([][]int, m)
-	for i:=0; i<m; i++ {
-		routeCache[i] = make([]int, n)
+	// dp[row][col] returns number of way to get that coordinate.
+	// if dp[1][1] returns 2, it means there are tow ways to get row = 1, col = 1.
+	dp := make([][]int, m)
+	for i, _ := range dp {
+		dp[i] = make([]int, n)
 	}
-	routeCache[0][0] = 1
-	for i:=0; i<m;i++ {
-		for j:=0; j<n; j++ {
-			if i == 0 && j ==0 {
+
+	// O(n*m)
+	for row := 0; row < m; row++ {
+		for col := 0; col < n; col++ {
+			if row == 0 || col == 0 {
+				dp[row][col] = 1
 				continue
 			}
-			left, top := 0,0
-			if j!=0 {
-				left = routeCache[i][j-1]
-			}
-			if i!=0 {
-				top = routeCache[i-1][j]
-			}
-			routeCache[i][j] = left+top
+			dp[row][col] = dp[row-1][col] + dp[row][col-1]
 		}
 	}
-	return routeCache[m-1][n-1]
+	return dp[m-1][n-1]
 }
