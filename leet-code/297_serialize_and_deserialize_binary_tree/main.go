@@ -1,6 +1,7 @@
 package _97_serialize_and_deserialize_binary_tree
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -19,109 +20,53 @@ func Constructor() Codec {
 }
 
 // Serializes a tree to a single string.
-func (c *Codec) serializeBFS(root *TreeNode) string {
-	res := make([]string, 0)
-	queue := []*TreeNode{root}
-
-	for len(queue) > 0 {
-		node := queue[0]
-		queue = queue[1:]
-		if node == nil {
+func (c *Codec) serialize(root *TreeNode) string {
+	if root == nil {
+		return ""
+	}
+	q := []*TreeNode{root}
+	res := []string{}
+	for len(q) > 0 {
+		pop := q[0]
+		q = q[1:]
+		if pop == nil {
 			res = append(res, "n")
+			continue
 		}
-		if node != nil {
-			res = append(res, strconv.Itoa(node.Val))
-			queue = append(queue, node.Left)
-			queue = append(queue, node.Right)
-		}
+		res = append(res, fmt.Sprintf("%d", pop.Val))
+		q = append(q, pop.Left)
+		q = append(q, pop.Right)
 	}
 	return strings.Join(res, ",")
 }
 
 // Deserializes your encoded data to tree.
-func (c *Codec) deserializeBFS(data string) *TreeNode {
-	list := strings.Split(data, ",")
-	if list[0] == "n" {
+func (c *Codec) deserialize(data string) *TreeNode {
+	if len(data) == 0 {
 		return nil
 	}
-	v, err := strconv.Atoi(list[0])
-	if err != nil {
-		panic(err)
-	}
-	root := &TreeNode{
-		Val: v,
-	}
-	queue := []*TreeNode{root}
-	idx := 1
-
-	for len(queue) > 0 {
-		node := queue[0]
-		queue = queue[1:]
-		strL := list[idx]
-		var nodeL *TreeNode
-		if strL != "n" {
-			v, e := strconv.Atoi(list[idx])
-			if e != nil {
-				panic(e)
-			}
-
-			nodeL = &TreeNode{Val: v}
-			queue = append(queue, nodeL)
+	in := strings.Split(data, ",")
+	root := &TreeNode{Val: toInt(in[0])}
+	q := []*TreeNode{root}
+	i := 1
+	for len(q) > 0 {
+		pop := q[0]
+		q = q[1:]
+		if in[i] != "n" {
+			pop.Left = &TreeNode{Val: toInt(in[i])}
+			q = append(q, pop.Left)
 		}
-		node.Left = nodeL
-		idx++
-
-		strR := list[idx]
-		var nodeR *TreeNode
-		if strR != "n" {
-			v, e := strconv.Atoi(list[idx])
-			if e != nil {
-				panic(e)
-			}
-			nodeR = &TreeNode{Val: v}
-			queue = append(queue, nodeR)
+		i++
+		if in[i] != "n" {
+			pop.Right = &TreeNode{Val: toInt(in[i])}
+			q = append(q, pop.Right)
 		}
-		node.Right = nodeR
-		idx++
+		i++
 	}
-
 	return root
 }
 
-func (c *Codec) serializeDFS(root *TreeNode) string {
-	res := make([]string, 0)
-
-	var dfs func(node *TreeNode)
-	dfs = func(node *TreeNode) {
-		if node == nil {
-			res = append(res, "n")
-			return
-		}
-		v := strconv.Itoa(node.Val)
-		res = append(res, v)
-		dfs(node.Left)
-		dfs(node.Right)
-	}
-	dfs(root)
-	return strings.Join(res, ",")
-}
-
-// Deserializes your encoded data to tree.
-func (c *Codec) deserializeDFS(data string) *TreeNode {
-	list := strings.Split(data, ",")
-	idx := 0
-	var dfs func() *TreeNode
-	dfs = func() *TreeNode {
-		strV := list[idx]
-		idx++
-		if strV == "n" {
-			return nil
-		}
-		intV, _ := strconv.Atoi(strV)
-		node := &TreeNode{Val: intV}
-		node.Left = dfs()
-		node.Right = dfs()
-		return node
-	}
-	return dfs()
+func toInt(s string) int {
+	res, _ := strconv.Atoi(s)
+	return res
 }
