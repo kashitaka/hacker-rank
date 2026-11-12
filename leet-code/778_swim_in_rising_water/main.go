@@ -2,59 +2,64 @@ package _78_swim_in_rising_water
 
 import "container/heap"
 
-type item struct {
-	r     int
-	c     int
-	level int
+type MinHeap [][3]int
+
+func (h MinHeap) Len() int           { return len(h) }
+func (h MinHeap) Less(i, j int) bool { return h[i][2] < h[j][2] }
+func (h MinHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *MinHeap) Push(x any) {
+	*h = append(*h, x.([3]int))
 }
 
-type MinHeap []*item
-
-func (m MinHeap) Len() int           { return len(m) }
-func (m MinHeap) Less(i, j int) bool { return m[i].level < m[j].level }
-func (m MinHeap) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
-
-func (m *MinHeap) Push(x any) {
-	*m = append(*m, x.(*item))
-}
-
-func (m *MinHeap) Pop() any {
-	old := *m
+func (h *MinHeap) Pop() any {
+	old := *h
 	n := len(old)
 	x := old[n-1]
-	*m = old[:n-1]
+	*h = old[:n-1]
 	return x
 }
 
+// Let m x n be the size of the given grid.
+// In the worst case, all cells may be visited, and each cell
+// explores at most 4 directions, which costs O(4mn) = O(mn).
+// Each heap push/pop operation takes O(log(mn)), and
+// the total number of heap operations is O(mn).
+// Therefore, the total running time is O(mn log(mn)).
 func swimInWater(grid [][]int) int {
 	ROW, COL := len(grid), len(grid[0])
+
+	h := &MinHeap{{0, 0, grid[0][0]}}
+	heap.Init(h)
+
 	visit := make([][]bool, ROW)
 	for i, _ := range visit {
 		visit[i] = make([]bool, COL)
 	}
 
-	h := &MinHeap{&item{r: 0, c: 0, level: grid[0][0]}}
-	heap.Init(h)
 	res := 0
-	dirs := [][]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+	dirs := [][2]int{{-1, 0}, {1, 0}, {0, 1}, {0, -1}}
 
-	for {
-		pop := heap.Pop(h).(*item)
-		if visit[pop.r][pop.c] {
+	for h.Len() > 0 {
+		pop := heap.Pop(h).([3]int)
+		r, c, level := pop[0], pop[1], pop[2]
+		if visit[r][c] {
 			continue
 		}
-		visit[pop.r][pop.c] = true
-		res = max(res, grid[pop.r][pop.c])
-		if pop.r == ROW-1 && pop.c == COL-1 {
+		visit[r][c] = true
+		res = max(res, level)
+
+		if r == ROW-1 && c == COL-1 {
 			break
 		}
+
 		for _, dir := range dirs {
-			newR, newC := pop.r+dir[0], pop.c+dir[1]
-			if newR < 0 || newC < 0 || newR == ROW || newC == COL ||
-				visit[newR][newC] {
+			nextR, nextC := r+dir[0], c+dir[1]
+			if nextR < 0 || nextC < 0 || nextR == ROW || nextC == COL ||
+				visit[nextR][nextC] {
 				continue
 			}
-			heap.Push(h, &item{r: newR, c: newC, level: grid[newR][newC]})
+			heap.Push(h, [3]int{nextR, nextC, grid[nextR][nextC]})
 		}
 	}
 
