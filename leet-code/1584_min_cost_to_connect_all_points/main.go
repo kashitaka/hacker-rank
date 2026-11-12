@@ -1,6 +1,9 @@
 package _584_min_cost_to_connect_all_points
 
-import "container/heap"
+import (
+	"container/heap"
+	"math"
+)
 
 type item struct {
 	node int
@@ -9,9 +12,9 @@ type item struct {
 
 type MinHeap []*item
 
-func (h MinHeap) Len() int {return len(h)}
-func (h MinHeap) Less(i, j int) bool {return h[i].cost < h[j].cost}
-func (h MinHeap) Swap(i, j int) {h[i], h[j] = h[j], h[i]}
+func (h MinHeap) Len() int           { return len(h) }
+func (h MinHeap) Less(i, j int) bool { return h[i].cost < h[j].cost }
+func (h MinHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
 func (h *MinHeap) Push(x any) {
 	*h = append(*h, x.(*item))
@@ -43,7 +46,7 @@ func minCostConnectPoints(points [][]int) int {
 	n := len(points)
 	graph := make(map[int][2]int)
 	for i, v := range points {
-		graph[i] = [2]int{v[0],v[1]}
+		graph[i] = [2]int{v[0], v[1]}
 	}
 
 	visit := make(map[int]bool)
@@ -74,5 +77,47 @@ func minCostConnectPoints(points [][]int) int {
 		}
 	}
 
+	return res
+}
+
+// Faster solution for a dense graph.
+// O(|V|^2)
+func minCostConnectPoints2(points [][]int) int {
+	n := len(points)
+
+	visit := make(map[int]bool)
+	distances := make([]int, n)
+	for i := 0; i < n; i++ {
+		distances[i] = math.MaxInt64
+	}
+	distances[0] = 0
+
+	res := 0
+
+	for len(visit) < n {
+		node := -1
+		minimum := math.MaxInt64
+		for i := 0; i < n; i++ {
+			if visit[i] {
+				continue
+			}
+			if distances[i] < minimum {
+				node = i
+				minimum = distances[i]
+			}
+		}
+		visit[node] = true
+		res += minimum
+
+		srcX, srcY := points[node][0], points[node][1]
+		for i := 0; i < n; i++ {
+			if visit[i] {
+				continue
+			}
+			destX, destY := points[i][0], points[i][1]
+			dist := abs(srcX-destX) + abs(srcY-destY)
+			distances[i] = min(distances[i], dist)
+		}
+	}
 	return res
 }
